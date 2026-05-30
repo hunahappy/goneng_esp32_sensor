@@ -26,7 +26,6 @@ void setup() {
     mqtt.publish("goneng/farm1/log/sensor/status", str_data);
 }
 
-
 unsigned long lastSensorTime = 0;
 const unsigned long SENSOR_INTERVAL = 10000; // 10초
 
