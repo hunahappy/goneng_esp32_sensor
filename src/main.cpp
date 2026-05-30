@@ -14,7 +14,16 @@ void setup() {
     check_mqtt_and_start("시작");
 
     init_sensor();
-    mqtt.publish("goneng/farm1/log/sensor/status", "{\"센서\": \"sensor\", \"로그\": \"sensor 시작!\"}");
+
+    const char* str_data = R"({
+            "장치": "esp32_sensor",
+            "구분": "log",
+            내용:{
+                "메시지": "sensor 시작!"
+            }
+        }
+    )";
+    mqtt.publish("goneng/farm1/log/sensor/status", str_data);
 }
 
 

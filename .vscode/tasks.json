@@ -1,5 +1,5 @@
 {
-  "label": "Upload to ESP32 via OrangePi",
+  "label": "Build, Upload, Flash to ESP32",
   "type": "shell",
-  "command": "scp .pio/build/esp32-s3-devkitc-1/firmware.bin mandu@192.168.0.103:/home/mandu/upload_esp32/ && ssh mandu@192.168.0.103 '/home/mandu/upload_esp32/flash.sh'"
+  "command": "~/.platformio/penv/bin/pio run && scp .pio/build/esp32-s3-devkitc-1/firmware.bin mandu@192.168.0.103:/home/mandu/upload_esp32/ && ssh mandu@192.168.0.103 '/home/mandu/upload_esp32/flash.sh'"
 }

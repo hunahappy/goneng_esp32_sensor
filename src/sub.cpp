@@ -42,7 +42,14 @@ void check_mqtt_and_start(const char* check_connect) {
                 logger.log("warn", "MQTT 연결 시도...");
                 if (mqtt.connect()) {
                     lastReconnectAttempt = 0; // 성공하면 타이머 초기화
-                    mqtt.publish("goneng/farm1/log/sensor/status", "{\"센서\": \"sensor\", \"로그\": \"mqtt 연결 성공!\"}");
+                    const char* str_data = R"({
+                        "장치": "esp32_sensor",
+                        "구분": "log",
+                        "내용":{
+                            "메시지": "mqtt 연결 성공!"
+                        }
+                    })";
+                    mqtt.publish("goneng/farm1/log/sensor/status", str_data);
                 }
             }
         } else {
@@ -56,15 +63,47 @@ void init_sensor() {
     Wire.begin(SDA1, SCL1, 100000);
 
     if (!aht1.begin()) {
-        mqtt.publish("goneng/farm1/log/sensor/status", "{\"센서\": \"sensor\", \"로그\": \"온습도 센서 초기화 실패!\"}");
+        const char* str_data = R"({
+                "장치": "esp32_sensor",
+                "구분": "log",
+                내용:{
+                    "메시지": "sensor 시작!"
+                }
+            }
+        )";
+        mqtt.publish("goneng/farm1/log/sensor/status", str_data);
     } else {
-        mqtt.publish("goneng/farm1/log/sensor/status", "{\"센서\": \"sensor\", \"로그\": \"온습도 센서 초기화 완료!\"}");
+        const char* str_data = R"({
+                "장치": "esp32_sensor",
+                "구분": "log",
+                "내용":{
+                    "메시지": "온습도 센서 초기화 완료!"
+                }
+            }
+        )";
+        mqtt.publish("goneng/farm1/log/sensor/status", str_data);
     }
 
     if (lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE)) {
-        mqtt.publish("goneng/farm1/log/sensor/status", "{\"센서\": \"sensor\", \"로그\": \"조도 센서 초기화 성공!\"}");
+        const char* str_data = R"({
+                "장치": "esp32_sensor",
+                "구분": "log",
+                "내용":{
+                    "메시지": "조도 센서 초기화 성공!"
+                }
+            }
+        )";
+        mqtt.publish("goneng/farm1/log/sensor/status", str_data);
     } else {
-        mqtt.publish("goneng/farm1/log/sensor/status", "{\"센서\": \"sensor\", \"로그\": \"조도 센서 초기화 실패!\"}");
+        const char* str_data = R"({
+                "장치": "esp32_sensor",
+                "구분": "log",
+                "내용":{
+                    "메시지": "조도 센서 초기화 실패!"
+                }
+            }
+        )";
+        mqtt.publish("goneng/farm1/log/sensor/status", str_data);
     }    
 
     sensors.begin();
@@ -81,21 +120,24 @@ void read_sensor_and_publish() {
     aht1.getEvent(&h1, &t1);
 
     JsonDocument doc; 
-    doc["esp32"] = "sensor";
+    doc["장치"] = "sensor";
+    doc["구분"] = "data";
 
-    doc["온도1"] = t1.temperature;
-    doc["습도1"] = h1.relative_humidity;
+    JsonObject content = doc.createNestedObject("내용");
+
+    content["온도"] = t1.temperature;
+    content["습도"] = h1.relative_humidity;
 
     //////////////////////////////////////////////////////////////////////////
 
     float lux = lightMeter.readLightLevel();
-    doc["조도1"] = lux;    
+    content["조도"] = lux;    
 
     /////////////////////////////////////////////////////////////////////////
 
     sensors.requestTemperatures(); 
     float tempC = sensors.getTempCByIndex(0);
-    doc["수온1"] = tempC;
+    content["수온"] = tempC;
 
     /////////////////////////////////////////////////////////////////////////
 
@@ -109,7 +151,7 @@ void read_sensor_and_publish() {
     float voltage = avgRaw * 3.3 / 4095.0;
     float ec = voltage * CALIBRATION_FACTOR;
     float ec25 = ec / (1 + 0.02 * (tempC - 25));
-    doc["EC1"] = ec25;
+    content["EC"] = ec25;
 
     String jsonOutput;
     serializeJson(doc, jsonOutput);
