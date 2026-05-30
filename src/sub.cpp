@@ -42,7 +42,7 @@ void check_mqtt_and_start(const char* check_connect) {
                 logger.log("warn", "MQTT 연결 시도...");
                 if (mqtt.connect()) {
                     lastReconnectAttempt = 0; // 성공하면 타이머 초기화
-                    mqtt.publish("goneng/farm1/log/sensor_control_1/status", "{\"센서\": \"sensor_control_1\", \"로그\": \"mqtt 연결 성공!\"}");
+                    mqtt.publish("goneng/farm1/log/sensor/status", "{\"센서\": \"sensor\", \"로그\": \"mqtt 연결 성공!\"}");
                 }
             }
         } else {
@@ -56,15 +56,15 @@ void init_sensor() {
     Wire.begin(SDA1, SCL1, 100000);
 
     if (!aht1.begin()) {
-        mqtt.publish("goneng/farm1/log/sensor_control_1/status", "{\"센서\": \"sensor_control_1\", \"로그\": \"온습도 센서 초기화 실패!\"}");
+        mqtt.publish("goneng/farm1/log/sensor/status", "{\"센서\": \"sensor\", \"로그\": \"온습도 센서 초기화 실패!\"}");
     } else {
-        mqtt.publish("goneng/farm1/log/sensor_control_1/status", "{\"센서\": \"sensor_control_1\", \"로그\": \"온습도 센서 초기화 완료!\"}");
+        mqtt.publish("goneng/farm1/log/sensor/status", "{\"센서\": \"sensor\", \"로그\": \"온습도 센서 초기화 완료!\"}");
     }
 
     if (lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE)) {
-        mqtt.publish("goneng/farm1/log/sensor_control_1/status", "{\"센서\": \"sensor_control_1\", \"로그\": \"조도 센서 초기화 성공!\"}");
+        mqtt.publish("goneng/farm1/log/sensor/status", "{\"센서\": \"sensor\", \"로그\": \"조도 센서 초기화 성공!\"}");
     } else {
-        mqtt.publish("goneng/farm1/log/sensor_control_1/status", "{\"센서\": \"sensor_control_1\", \"로그\": \"조도 센서 초기화 실패!\"}");
+        mqtt.publish("goneng/farm1/log/sensor/status", "{\"센서\": \"sensor\", \"로그\": \"조도 센서 초기화 실패!\"}");
     }    
 
     sensors.begin();
@@ -81,7 +81,7 @@ void read_sensor_and_publish() {
     aht1.getEvent(&h1, &t1);
 
     JsonDocument doc; 
-    doc["센서"] = "sensor_control_1";
+    doc["esp32"] = "sensor";
 
     doc["온도1"] = t1.temperature;
     doc["습도1"] = h1.relative_humidity;
@@ -113,8 +113,8 @@ void read_sensor_and_publish() {
 
     String jsonOutput;
     serializeJson(doc, jsonOutput);
-    mqtt.publish("goneng/farm1/data/sensor_control_1/thes", jsonOutput.c_str());    
-}   
+    mqtt.publish("goneng/farm1/data/sensor/thes", jsonOutput.c_str());    
+}    
 
 
 

@@ -12,7 +12,7 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
     Serial.printf("메시지 도착! 토픽: %s, 내용: %s\n", topic, msg);
 
     // 2. 토픽에 따른 로직 분기
-    if (String(topic) == "gonng/control/sensor_control_1/action1") {
+    if (String(topic) == "gonng/control/sensor/action1") {
         if (String(msg) == "ON") {
             // LED 켜는 로직
         }
@@ -28,7 +28,7 @@ MqttManager::MqttManager(const char* server, uint16_t port, const char* user, co
 bool MqttManager::connect() {
     // connect(clientId, user, pass) 사용
     if (_mqttClient.connect("WasabiFarm_S3", _user, _pass)) {
-        _mqttClient.subscribe("goneng/farm1/control/sensor_control_1/#");
+        _mqttClient.subscribe("goneng/farm1/control/sensor/#");
         logger.log("info", "MQTT Authentication 성공.");
         return true;
     } else {

@@ -14,7 +14,7 @@ void setup() {
     check_mqtt_and_start("시작");
 
     init_sensor();
-    mqtt.publish("goneng/farm1/log/sensor_control_1/status", "{\"센서\": \"sensor_control_1\", \"로그\": \"sensor_control_1 시작!\"}");
+    mqtt.publish("goneng/farm1/log/sensor/status", "{\"센서\": \"sensor\", \"로그\": \"sensor 시작!\"}");
 }
 
 
