@@ -18,7 +18,7 @@ void setup() {
     const char* str_data = R"({
             "장치": "esp32_sensor",
             "구분": "log",
-            내용:{
+            "내용":{
                 "메시지": "sensor 시작!"
             }
         }
@@ -27,7 +27,7 @@ void setup() {
 }
 
 unsigned long lastSensorTime = 0;
-const unsigned long SENSOR_INTERVAL = 10000; // 10초
+const unsigned long SENSOR_INTERVAL = 40000; // 40초
 
 void loop() {
     check_wifi_and_start();

@@ -27,7 +27,7 @@ MqttManager::MqttManager(const char* server, uint16_t port, const char* user, co
 
 bool MqttManager::connect() {
     // connect(clientId, user, pass) 사용
-    if (_mqttClient.connect("WasabiFarm_S3", _user, _pass)) {
+    if (_mqttClient.connect("esp32_sensor", _user, _pass)) {
         _mqttClient.subscribe("goneng/farm1/control/sensor/#");
         logger.log("info", "MQTT Authentication 성공.");
         return true;

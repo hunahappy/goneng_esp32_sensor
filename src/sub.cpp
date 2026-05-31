@@ -17,12 +17,12 @@ BH1750 lightMeter;
 
 #define ONE_WIRE_BUS 4
 OneWire oneWire(ONE_WIRE_BUS);
-DallasTemperature sensors(&oneWire);
+DallasTemperature water_sensors(&oneWire);
 
 #define EC_PIN 5
+#define EC_POWER_PIN 16
 
-#define CALIBRATION_FACTOR 1.21
-// #define RELAY_PIN 16
+#define CALIBRATION_FACTOR 0.863
 
 void check_wifi_and_start() {
     if (WiFi.status() != WL_CONNECTED) {
@@ -66,7 +66,7 @@ void init_sensor() {
         const char* str_data = R"({
                 "장치": "esp32_sensor",
                 "구분": "log",
-                내용:{
+                "내용":{
                     "메시지": "sensor 시작!"
                 }
             }
@@ -106,13 +106,13 @@ void init_sensor() {
         mqtt.publish("goneng/farm1/log/sensor/status", str_data);
     }    
 
-    sensors.begin();
+    water_sensors.begin();
+
+    pinMode(EC_POWER_PIN, OUTPUT);
+    digitalWrite(EC_POWER_PIN, LOW);
 
     analogReadResolution(12);
     analogSetPinAttenuation(EC_PIN, ADC_11db);
-
-    // pinMode(RELAY_PIN, OUTPUT);
-    // digitalWrite(RELAY_PIN, HIGH);    
 }   
 
 void read_sensor_and_publish() {    
@@ -135,11 +135,14 @@ void read_sensor_and_publish() {
 
     /////////////////////////////////////////////////////////////////////////
 
-    sensors.requestTemperatures(); 
-    float tempC = sensors.getTempCByIndex(0);
+    water_sensors.requestTemperatures(); 
+    float tempC = water_sensors.getTempCByIndex(0);
     content["수온"] = tempC;
 
     /////////////////////////////////////////////////////////////////////////
+
+    digitalWrite(EC_POWER_PIN, HIGH);
+    delay(500);
 
     int sum = 0;
     for(int i = 0; i < 20; i++) { // 20번 읽어서 평균 내기
@@ -153,16 +156,9 @@ void read_sensor_and_publish() {
     float ec25 = ec / (1 + 0.02 * (tempC - 25));
     content["EC"] = ec25;
 
+    digitalWrite(EC_POWER_PIN, LOW);
+
     String jsonOutput;
     serializeJson(doc, jsonOutput);
     mqtt.publish("goneng/farm1/data/sensor/thes", jsonOutput.c_str());    
 }    
-
-
-
-
-
-    // digitalWrite(RELAY_PIN, LOW); //작동
-    // delay(1000);  
-    // digitalWrite(RELAY_PIN, HIGH); //대기
-    // delay(1000);
